@@ -1,0 +1,37 @@
+{
+  "client": [
+    {
+      "services": {
+        "appinvite_service": {
+          "status": 1
+        }, 
+        "analytics_service": {
+          "status": 0
+        }
+      }, 
+      "oauth_client": [
+        {
+          "client_id": "592536858697-sn1s6ajqbv6n9gmi9uq2trcdfk0eg9ng.apps.googleusercontent.com"
+        }
+      ], 
+      "api_key": [
+        {
+          "current_key": "AIzaSyAKBJjHgfx2MNT2s-aHBJo2NeZ5ujHIleM"
+        }
+      ], 
+      "client_info": {
+        "mobilesdk_app_id": "1:592536858697:ios:2dfd8f0bd26d66f3be4f98", 
+        "android_client_info": {
+          "package_name": "com.kennethlng.tictactoe-multiplayer"
+        }
+      }
+    }
+  ], 
+  "configuration_version": "1", 
+  "project_info": {
+    "storage_bucket": "tic-tac-toe-multiplayer-4afdb.appspot.com", 
+    "project_id": "tic-tac-toe-multiplayer-4afdb", 
+    "firebase_url": "https://tic-tac-toe-multiplayer-4afdb.firebaseio.com", 
+    "project_number": "592536858697"
+  }
+}
