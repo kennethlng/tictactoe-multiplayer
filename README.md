@@ -1,4 +1,4 @@
-# Multiplayer TicTacToe
+# Multiplayer TicTacToe Using Unity and Firebase
 
 ## Installation
 
@@ -28,14 +28,33 @@ If 2 active queues are available, a `match` is created for the 2 players, the qu
 
 ### 3. Playing
 
-Since there are a finite number of moves for each TicTacToe game, the entire grid is saved as an object in the `match` document. 
+Since there are a finite number of moves for each TicTacToe game, the entire grid is saved as an array in the `match` document.
 
+```json
+{
+        "grids": {
+                "0": "X",
+                "1": "O",
+                "2": "O",
+                "3": "",
+                "4": "X",
+                "5": "",
+                "6": "",
+                "7": "O",
+                "8": ""       
+        }
+}
 ```
-```
+
+Each time a player places a new mark, the "grids" array is updated. 
+
+Firebase Cloud Messaging is used to let each player know when their turn is. 
+
+To prevent cheating on the client side, a Cloud Functions function is run each time the `match` doc is updated to check if anybody wins the game. 
 
 ### 4. Ending
 
-When a winner is declared, the `match` document is updated with the ID of the winning player.
+If a winner is declared, the `match` document is updated with the ID of the winning player.
 
 ```C#
 DocumentReference matchRef = db.Collection("matches").Document("match-id");
