@@ -3,6 +3,7 @@
     "com.google.external-dependency-manager": "1.2.156",
     "com.google.firebase.auth": "6.15.1",
     "com.google.firebase.firestore": "6.15.1",
+    "com.google.firebase.messaging": "6.15.1",
     "com.unity.2d.animation": "3.2.2",
     "com.unity.2d.pixel-perfect": "2.0.4",
     "com.unity.2d.psdimporter": "2.1.4",
