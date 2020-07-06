@@ -26,7 +26,9 @@ public class SceneController : MonoBehaviour
     private IEnumerator LoadSceneAndSetActive(string sceneName)
     {
         yield return SceneManager.LoadSceneAsync(sceneName, LoadSceneMode.Additive);
+
         Scene newlyLoadedScene = SceneManager.GetSceneAt(SceneManager.sceneCount - 1);
+
         SceneManager.SetActiveScene(newlyLoadedScene);
     }
 

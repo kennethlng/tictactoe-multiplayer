@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using UnityEngine;
 using Firebase.Auth; 
 
@@ -64,9 +65,9 @@ public class AuthenticationManager : MonoBehaviour
         }
     }
 
-    public void SignInAnonymously()
+    public Task SignInAnonymously()
     {
-        auth.SignInAnonymouslyAsync().ContinueWith(task =>
+        return auth.SignInAnonymouslyAsync().ContinueWith(task =>
         {
             if (task.IsCanceled)
             {
