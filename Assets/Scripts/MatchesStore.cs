@@ -8,15 +8,12 @@ using Firebase.Extensions;
 
 public class MatchesStore : FirestoreStore
 {
-    private Match _match = null;
-    public Match match { get { return _match; } }
+    public delegate void OnMatchUpdateDelegate();
+    public event OnMatchUpdateDelegate OnMatchUpdate;  
+    public delegate void OnMatchUpdateErrorDelegate();
+    public event OnMatchUpdateErrorDelegate OnMatchUpdateError;
     public delegate void OnMatchUpdatedDelegate(Match match);
     public event OnMatchUpdatedDelegate OnMatchUpdated;
-
-    public void ListenMatches()
-    {
-
-    }
 
     public void ListenMatch(string matchId)
     {
@@ -25,32 +22,14 @@ public class MatchesStore : FirestoreStore
         {
             Debug.Log("Match updated");
             Match newMatch = new Match(snapshot);
-            _match = newMatch; 
-            OnMatchUpdated(match); 
+            OnMatchUpdated(newMatch); 
         }); 
-    }
-
-    public Task GetMatch(string matchId)
-    {
-        DocumentReference docRef = Match.collectionRef.Document(matchId);
-        return docRef.GetSnapshotAsync().ContinueWithOnMainThread(task =>
-        {
-            var snapshot = task.Result;
-
-            if (snapshot.Exists)
-            {
-                Match newMatch = new Match(snapshot);
-                _match = newMatch;
-            }
-            else
-            {
-                Debug.Log("Snapshot doesn't exist"); 
-            }
-        });
     }
 
     public Task UpdateMatch(Match match)
     {
+        OnMatchUpdate();
+
         DocumentReference docRef = Match.collectionRef.Document(match.id);
         Dictionary<string, object> updatedMatch = new Dictionary<string, object>
         {
@@ -66,6 +45,12 @@ public class MatchesStore : FirestoreStore
             { "mark8", match.marks[8] }
         };
 
-        return docRef.SetAsync(updatedMatch, SetOptions.MergeAll); 
+        return docRef.SetAsync(updatedMatch, SetOptions.MergeAll).ContinueWithOnMainThread(task => {
+            if (task.IsFaulted || task.IsCanceled)
+            {
+                Debug.Log(task.Exception.ToString());
+                OnMatchUpdateError(); 
+            } 
+        }); 
     }
 }

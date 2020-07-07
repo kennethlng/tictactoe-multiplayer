@@ -9,19 +9,11 @@ using Firebase.Auth;
 
 public class GameManager : MonoBehaviour
 {
+    public StringVariable matchId; 
     private MatchesStore matchesStore;
     private Match match; 
     public MarkButton[] markButtons;
     public PlayerMarkInsignia[] playerMarkInsignias;
-
-    // Start is called before the first frame update
-    //async void Start()
-    //{
-    //    await matchesStore.GetMatch("isXFXtKslUfhIbAtLwb1");
-
-    //    //matchesStore.ListenMatch("isXFXtKslUfhIbAtLwb1");
-    //    //matchesStore.OnMatchUpdated += MatchesStore_OnMatchUpdated;
-    //}
 
     private void Awake()
     {
@@ -30,62 +22,52 @@ public class GameManager : MonoBehaviour
 
     private void Start()
     {
-        //matchesStore.GetMatch("isXFXtKslUfhIbAtLwb1");
-        matchesStore.ListenMatch("isXFXtKslUfhIbAtLwb1");
+        matchesStore.ListenMatch(matchId.Value);
         matchesStore.OnMatchUpdated += MatchesStore_OnMatchUpdated;
-        Setup(); 
-    }
 
-    private void Setup()
-    {
+        SubscribeToMarkButtons();
+
         Debug.Log(FirebaseAuth.DefaultInstance.CurrentUser.UserId);
-        SubscribeToMarkButtons(); 
     }
 
     private void MatchesStore_OnMatchUpdated(Match match)
     {
         this.match = match; 
-        ChangeTurns(); 
-        UpdateMarks();
 
-        if (IsGameWon())
+        //  If a winner is declared
+        if (!string.IsNullOrEmpty(match.winner))
         {
-
+            return; 
         }
+
+        ChangeTurns();
+        UpdateMarks();
     }
 
     private void UpdateMarks()
     {
         for (int i = 0; i < markButtons.Length; i++)
-        {
             markButtons[i].UpdateMark(match.marks[i]);
-        }
+        
     }
    
     private void ChangeTurns()
     {
-        ShowPlayerInsigniaTurn(); 
+        ShowPlayerInsigniaTurn();
 
-        foreach(Player player in match.players)
+        if (match.turn == FirebaseAuth.DefaultInstance.CurrentUser.UserId)
         {
-            //  If it's the current user's turn
-            if (FirebaseAuth.DefaultInstance.CurrentUser.UserId == match.turn) 
-            {
-                SetMarkButtonsInteractable(true); 
-            }
-            else
-            {
-                SetMarkButtonsInteractable(false); 
-            }
+            SetMarkButtonsInteractable(true); 
+            return;
         }
+
+        SetMarkButtonsInteractable(false); 
     }
 
     private void SetMarkButtonsInteractable(bool isInteractable)
     {
         foreach(MarkButton markButton in markButtons)
-        {
             markButton.gameObject.GetComponent<Button>().interactable = isInteractable; 
-        }
     }
 
     private void SubscribeToMarkButtons()
@@ -102,6 +84,10 @@ public class GameManager : MonoBehaviour
         if (markButtons[index].IsMarked)
             return;
 
+        //  Once the player has inputted an action, disable all the buttons to prevent unnecessary repeated actions
+        SetMarkButtonsInteractable(false);
+
+        //  Update the match
         var updatedMatch = match;
         updatedMatch.marks[index] = GetCurrentPlayer().mark;
         matchesStore.UpdateMatch(updatedMatch); 
@@ -133,16 +119,5 @@ public class GameManager : MonoBehaviour
         }
 
         return null; 
-    }
-
-    private bool IsGameWon()
-    {
-        foreach (Player player in match.players)
-        {
-            if (match.winner == player.id)
-                return true;
-        }
-
-        return false;
     }
 }
