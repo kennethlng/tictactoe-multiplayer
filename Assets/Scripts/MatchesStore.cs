@@ -5,6 +5,7 @@ using System.Linq;
 using UnityEngine;
 using Firebase.Firestore;
 using Firebase.Extensions;
+using Firebase.Auth; 
 
 public class MatchesStore : FirestoreStore
 {
@@ -14,6 +15,26 @@ public class MatchesStore : FirestoreStore
     public event OnMatchUpdateErrorDelegate OnMatchUpdateError;
     public delegate void OnMatchUpdatedDelegate(Match match);
     public event OnMatchUpdatedDelegate OnMatchUpdated;
+    public delegate void OnMatchesUpdatedDelegate(List<Match> matches);
+    public event OnMatchesUpdatedDelegate OnMatchesUpdated; 
+
+    public void ListenMatches()
+    {
+        string userId = FirebaseAuth.DefaultInstance.CurrentUser.UserId; 
+
+        Query query = Match.collectionRef.WhereEqualTo(userId, true);
+        ListenerRegistration listener = query.Listen(snapshot =>
+        {
+            Debug.Log("Matches updated");
+            List<Match> matches = new List<Match>();
+            foreach (DocumentSnapshot documentSnapshot in snapshot.Documents)
+            {
+                Match match = new Match(documentSnapshot);
+                matches.Add(match);
+            }
+            OnMatchesUpdated(matches); 
+        });
+    }
 
     public void ListenMatch(string matchId)
     {

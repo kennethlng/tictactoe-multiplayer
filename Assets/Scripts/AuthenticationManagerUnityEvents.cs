@@ -8,11 +8,16 @@ public class AuthenticationManagerUnityEvents : MonoBehaviour
     public UnityEvent OnSignedIn = new UnityEvent();
     public UnityEvent OnSignedOut = new UnityEvent(); 
 
-    // Start is called before the first frame update
-    void Start()
+    private void OnEnable()
     {
         AuthenticationManager.OnSignedIn += HandleSignIn;
-        AuthenticationManager.OnSignedOut += HandleSignOut; 
+        AuthenticationManager.OnSignedOut += HandleSignOut;
+    }
+
+    private void OnDisable()
+    {
+        AuthenticationManager.OnSignedIn -= HandleSignIn;
+        AuthenticationManager.OnSignedOut -= HandleSignOut;
     }
 
     private void HandleSignIn()

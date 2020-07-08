@@ -13,4 +13,6 @@ public static class Constants
     public const string WINNER = "winner";
     public const string MARK_X = "X";
     public const string MARK_O = "O";
+    public const string USER_ID = "userId";
+
 }
