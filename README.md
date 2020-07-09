@@ -2,7 +2,7 @@
 
 ## Installation
 
-### 1. Download and unzip the project
+### 1. Download and unzip the Xcode project
 
 Download the Xcode project to your desktop and unzip it. 
 
