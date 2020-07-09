@@ -2,69 +2,30 @@
 
 ## Installation
 
+### 1. Download and unzip the project
+
+Download the Xcode project and unzip it onto your computer. 
+
+### 2. Open the project in Xcode
+
+Launch Xcode and you will be prompted to create or open a project. Select the option **Open a Project or File**. Locate the project folder and open `Unity-iPhone.xcworkspace`. 
+
+### 3. Fix dependencies
+
+Before building the project onto your iPhone, you may experience some build errors. Remember to update the cocoapods by opening Terminal, locating the project folder, and entering `pod update`. 
+
+### 4. Connect your iPhone 
+
+Connect your iPhone and choose your phone in the list of build devices. 
+
+### 4. Build
+
+Press **Build** and Xcode will begin building the game onto your iPhone. Once it is finished building, the game will automatically open on your phone. 
+
 ## How to Play
 
-Click on the "Find Match" button to initiate a matchmaking request. This automatically places you in a queue until another player is available. Once a match is found, the game begins. 
+Click on the "Find Match" button to initiate a matchmaking request. This automatically places you in a queue until another player makes a matchmaking request and a match is created. A list of available matches will be shown on the screen. To begin the game, click on one of the available matches.
 
-TicTacToe is a simple, turn-based strategy game where you must outwit the opponent. Players take turns placing a mark on the 3x3 grid. The first player to have a vertical, horizontal, or diagonal line of marks wins the game. 
+TicTacToe is a simple, turn-based strategy game where you must outwit the opponent. When the game begins, the upper panel will indicate whether you have been assigned the "X" or "O" mark and whose turn it is each round (as judged by the blue highlight). Players take turns placing a mark on the 3x3 grid. When it is your turn, tap on any of the empty grid spaces to place your mark. The first player to have a vertical, horizontal, or diagonal line of marks wins the game. 
 
-## Stack 
-
-Firebase, Unity
-
-## How It Works
-
-### 1. Sign-in
-
-For the sake of simplicity, I only enabled anonymous sign-in. When the game starts, users are automatically logged in as anonymous users based on their device.
-
-### 2. Matchmaking
-
-When a player presses the "Find Match" button, a `queue` document is created in the Firestore `queues` collection. The player's client immediately begins listening for new `match` documents.  
-
-Each `queue` document is mapped to the player UID that initiated the request and contains an `isActive` field to indicate whether the queue is currently active. Whenever a `queue` document is created, the Cloud Functions checks for other `queue` docs that are currently active. 
-
-If 2 active queues are available, a `match` is created for the 2 players, the queues are deactivated, and the players' clients start a game. 
-
-### 3. Playing
-
-Since there are a finite number of moves for each TicTacToe game, the entire grid is saved as an array in the `match` document.
-
-```json
-{
-        "grids": {
-                "0": "X",
-                "1": "O",
-                "2": "O",
-                "3": "",
-                "4": "X",
-                "5": "",
-                "6": "",
-                "7": "O",
-                "8": ""       
-        }
-}
-```
-
-Each time a player places a new mark, the "grids" array is updated. 
-
-Firebase Cloud Messaging is used to let each player know when their turn is. 
-
-To prevent cheating on the client side, a Cloud Functions function is run each time the `match` doc is updated to check if anybody wins the game. 
-
-### 4. Ending
-
-If a winner is declared, the `match` document is updated with the ID of the winning player.
-
-```C#
-DocumentReference matchRef = db.Collection("matches").Document("match-id");
-Dictionary<string, object> updates = new Dictionary<string, object>
-{
-        { "isActive", false },
-        { "winner", winning-player-id }
-};
-
-matchRef.UpdateAsync(updates).ContinueWithOnMainThread(task => {
-        Debug.Log("Updated the isActive and winner fields of the match-id document in the matches collection.");
-});
-```
+Once the game is over, you can return to the lobby to find another match. 
