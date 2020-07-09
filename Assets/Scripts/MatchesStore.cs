@@ -9,6 +9,7 @@ using Firebase.Auth;
 
 public class MatchesStore : FirestoreStore
 {
+    private ListenerRegistration listener; 
     public delegate void OnMatchUpdateDelegate();
     public event OnMatchUpdateDelegate OnMatchUpdate;  
     public delegate void OnMatchUpdateErrorDelegate();
@@ -22,8 +23,8 @@ public class MatchesStore : FirestoreStore
     {
         string userId = FirebaseAuth.DefaultInstance.CurrentUser.UserId; 
 
-        Query query = Match.collectionRef.WhereEqualTo(userId, true);
-        ListenerRegistration listener = query.Listen(snapshot =>
+        Query query = Match.collectionRef.WhereEqualTo(userId, true).WhereEqualTo(Constants.IS_ACTIVE, true);
+        listener = query.Listen(snapshot =>
         {
             Debug.Log("Matches updated");
             List<Match> matches = new List<Match>();
@@ -32,24 +33,24 @@ public class MatchesStore : FirestoreStore
                 Match match = new Match(documentSnapshot);
                 matches.Add(match);
             }
-            OnMatchesUpdated(matches); 
+            OnMatchesUpdated?.Invoke(matches); 
         });
     }
 
     public void ListenMatch(string matchId)
     {
         DocumentReference docRef = Match.collectionRef.Document(matchId);
-        docRef.Listen(snapshot =>
+        listener = docRef.Listen(snapshot =>
         {
             Debug.Log("Match updated");
             Match newMatch = new Match(snapshot);
-            OnMatchUpdated(newMatch); 
+            OnMatchUpdated?.Invoke(newMatch);
         }); 
     }
 
     public Task UpdateMatch(Match match)
     {
-        OnMatchUpdate();
+        OnMatchUpdate?.Invoke();
 
         DocumentReference docRef = Match.collectionRef.Document(match.id);
         Dictionary<string, object> updatedMatch = new Dictionary<string, object>
@@ -70,8 +71,13 @@ public class MatchesStore : FirestoreStore
             if (task.IsFaulted || task.IsCanceled)
             {
                 Debug.Log(task.Exception.ToString());
-                OnMatchUpdateError(); 
+                OnMatchUpdateError?.Invoke(); 
             } 
         }); 
+    }
+
+    public void Unlisten()
+    {
+        listener.Stop(); 
     }
 }

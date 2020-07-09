@@ -36,7 +36,7 @@ public class AuthenticationManager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        auth = Firebase.Auth.FirebaseAuth.DefaultInstance;
+        auth = FirebaseAuth.DefaultInstance;
         auth.StateChanged += OnAuthStateChanged;
         //OnAuthStateChanged(this, null);
     }

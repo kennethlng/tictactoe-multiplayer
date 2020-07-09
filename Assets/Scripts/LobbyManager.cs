@@ -13,7 +13,6 @@ public class LobbyManager : MonoBehaviour
     public Button findMatchButton;
     public RectTransform listContent;
     public GameObject listItemPrefab; 
-    private float listItemHeight = 60f; 
 
     private void Awake()
     {
@@ -21,13 +20,22 @@ public class LobbyManager : MonoBehaviour
         matchesStore = new MatchesStore(); 
     }
 
-    // Start is called before the first frame update
-    void Start()
+    private void OnEnable()
     {
-        findMatchButton.interactable = true; 
-        findMatchButton.onClick.AddListener(FindMatchButtonClicked);
         matchesStore.OnMatchesUpdated += OnMatchesUpdated;
         matchesStore.ListenMatches();
+    }
+
+    private void OnDisable()
+    {
+        matchesStore.OnMatchesUpdated -= OnMatchesUpdated;
+        matchesStore.Unlisten(); 
+    }
+
+    void Start()
+    {
+        findMatchButton.interactable = true;
+        findMatchButton.onClick.AddListener(FindMatchButtonClicked);
     }
 
     private void FindMatchButtonClicked()

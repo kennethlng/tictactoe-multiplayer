@@ -1,114 +1,118 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
-using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.UI;
-using Firebase.Firestore;
-using Firebase.Extensions;
 using Firebase.Auth; 
 
 public class GameManager : MonoBehaviour
 {
+    private static GameManager _instance;
+    public static GameManager Instance {  get { return _instance; } }
+
     public StringVariable matchId; 
     private MatchesStore matchesStore;
     private Match match; 
     public MarkButton[] markButtons;
     public PlayerMarkInsignia[] playerMarkInsignias;
+    public Button quitButton;
+    public Button playAgainButton; 
+    public GameObject gameOverCanvas;
+    public Text winnerText;
+
+    #region Events
+    public delegate void OnTurnChangedDelegate(string userId);
+    public static event OnTurnChangedDelegate OnTurnChanged;
+    public delegate void OnMarksUpdatedDelegate(List<string> marks);
+    public static event OnMarksUpdatedDelegate OnMarksUpdated; 
+    public delegate void OnGameQuitDelegate();
+    public static event OnGameQuitDelegate OnGameQuit;
+    #endregion
 
     private void Awake()
     {
+        if (_instance != null && _instance != this)
+        {
+            Destroy(this.gameObject);
+        }
+        else
+        {
+            _instance = this; 
+        }
+
         matchesStore = new MatchesStore(); 
     }
 
     private void Start()
     {
+        gameOverCanvas.SetActive(false);  
+
+        playAgainButton.onClick.AddListener(HandleQuitButtonClick); 
+        quitButton.onClick.AddListener(HandleQuitButtonClick);
+
+        SetupMarkButtons();
+    }
+
+    private void OnEnable()
+    {
         matchesStore.ListenMatch(matchId.Value);
         matchesStore.OnMatchUpdated += MatchesStore_OnMatchUpdated;
+    }
 
-        SubscribeToMarkButtons();
-
-        Debug.Log(FirebaseAuth.DefaultInstance.CurrentUser.UserId);
+    private void OnDisable()
+    {
+        matchesStore.Unlisten(); 
+        matchesStore.OnMatchUpdated -= MatchesStore_OnMatchUpdated;
     }
 
     private void MatchesStore_OnMatchUpdated(Match match)
     {
-        this.match = match; 
+        if (match == null) return;
 
-        //  If a winner is declared
-        if (!string.IsNullOrEmpty(match.winner))
+        this.match = match;
+
+        //  If the game is no longer active, don't run any events or game logic
+        if (!match.isActive)
         {
-            return; 
-        }
-
-        ChangeTurns();
-        UpdateMarks();
-    }
-
-    private void UpdateMarks()
-    {
-        for (int i = 0; i < markButtons.Length; i++)
-            markButtons[i].UpdateMark(match.marks[i]);
-        
-    }
-   
-    private void ChangeTurns()
-    {
-        ShowPlayerInsigniaTurn();
-
-        if (match.turn == FirebaseAuth.DefaultInstance.CurrentUser.UserId)
-        {
-            SetMarkButtonsInteractable(true); 
+            //  Run the game over conditions
+            GameOver();
             return;
         }
 
-        SetMarkButtonsInteractable(false); 
+        SetupPlayerInsignias();
+
+        //  Call events
+        OnMarksUpdated?.Invoke(match.marks); 
+        OnTurnChanged?.Invoke(match.turn);
     }
 
-    private void SetMarkButtonsInteractable(bool isInteractable)
-    {
-        foreach(MarkButton markButton in markButtons)
-            markButton.gameObject.GetComponent<Button>().interactable = isInteractable; 
-    }
-
-    private void SubscribeToMarkButtons()
+    private void SetupMarkButtons()
     {
         for (int i = 0; i < markButtons.Length; i++)
         {
             int index = i;
-            markButtons[index].gameObject.GetComponent<Button>().onClick.AddListener(() => MarkButtonOnClick(index)); 
+            markButtons[index].Setup(index); 
+            markButtons[index].OnMarkButtonClicked += HandleMarkButtonClick;
         }
     }
 
-    private void MarkButtonOnClick(int index)
+    private void HandleMarkButtonClick(int index)
     {
-        if (markButtons[index].IsMarked)
-            return;
-
-        //  Once the player has inputted an action, disable all the buttons to prevent unnecessary repeated actions
-        SetMarkButtonsInteractable(false);
-
         //  Update the match
         var updatedMatch = match;
         updatedMatch.marks[index] = GetCurrentPlayer().mark;
         matchesStore.UpdateMatch(updatedMatch); 
     }
 
-    private void ShowPlayerInsigniaTurn()
+    private void SetupPlayerInsignias()
     {
-        foreach(PlayerMarkInsignia insignia in playerMarkInsignias)
+        for (int i = 0; i < playerMarkInsignias.Length; i++)
         {
-            if (insignia.player.id == match.turn)
-            {
-                insignia.Activate(true); 
-            }
-            else
-            {
-                insignia.Activate(false); 
-            }
+            int index = i;
+            playerMarkInsignias[index].Setup(match.players[index]);
         }
     }
 
-    private Player GetCurrentPlayer()
+    public Player GetCurrentPlayer()
     {
         foreach(Player player in match.players)
         {
@@ -119,5 +123,25 @@ public class GameManager : MonoBehaviour
         }
 
         return null; 
+    }
+
+    private void HandleQuitButtonClick()
+    {
+        OnGameQuit?.Invoke(); 
+    }
+
+    private void GameOver()
+    {
+        //  If a winner is declared
+        if (string.IsNullOrEmpty(match.winner))
+        {
+            winnerText.text = "Nobody wins!";
+        }
+        else
+        {
+            winnerText.text = "Player " + match.winner + " wins!"; 
+        }
+
+        gameOverCanvas.SetActive(true); 
     }
 }
