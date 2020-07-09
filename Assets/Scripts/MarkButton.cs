@@ -62,9 +62,6 @@ public class MarkButton : MonoBehaviour
         if (IsMarked)
             return; 
 
-        //  When the button is clicked, disable it to prevent unnecessary Firestore calls
-        button.interactable = false;
-
         OnMarkButtonClicked?.Invoke(gridIndex); 
     }
 

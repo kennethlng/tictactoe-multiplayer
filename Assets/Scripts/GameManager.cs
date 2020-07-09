@@ -22,6 +22,8 @@ public class GameManager : MonoBehaviour
     #region Events
     public delegate void OnTurnChangedDelegate(string userId);
     public static event OnTurnChangedDelegate OnTurnChanged;
+    public delegate void OnMarksUpdateDelegate();
+    public static event OnMarksUpdateDelegate OnMarksUpdate;
     public delegate void OnMarksUpdatedDelegate(List<string> marks);
     public static event OnMarksUpdatedDelegate OnMarksUpdated; 
     public delegate void OnGameQuitDelegate();
@@ -55,13 +57,13 @@ public class GameManager : MonoBehaviour
     private void OnEnable()
     {
         matchesStore.ListenMatch(matchId.Value);
-        matchesStore.OnMatchUpdated += MatchesStore_OnMatchUpdated;
+        MatchesStore.OnMatchUpdated += MatchesStore_OnMatchUpdated;
     }
 
     private void OnDisable()
     {
         matchesStore.Unlisten(); 
-        matchesStore.OnMatchUpdated -= MatchesStore_OnMatchUpdated;
+        MatchesStore.OnMatchUpdated -= MatchesStore_OnMatchUpdated;
     }
 
     private void MatchesStore_OnMatchUpdated(Match match)
@@ -97,6 +99,11 @@ public class GameManager : MonoBehaviour
 
     private void HandleMarkButtonClick(int index)
     {
+        if (matchesStore.IsLoading)
+            return;
+
+        OnMarksUpdate?.Invoke(); 
+
         //  Update the match
         var updatedMatch = match;
         updatedMatch.marks[index] = GetCurrentPlayer().mark;

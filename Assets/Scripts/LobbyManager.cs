@@ -5,6 +5,8 @@ using UnityEngine.UI;
 
 public class LobbyManager : MonoBehaviour
 {
+    public delegate void OnMatchFindDelegate();
+    public static event OnMatchFindDelegate OnMatchFind; 
     public delegate void OnMatchSelectedDelegate();
     public static event OnMatchSelectedDelegate OnMatchSelected; 
     private MatchesStore matchesStore;
@@ -22,13 +24,13 @@ public class LobbyManager : MonoBehaviour
 
     private void OnEnable()
     {
-        matchesStore.OnMatchesUpdated += OnMatchesUpdated;
+        MatchesStore.OnMatchesUpdated += OnMatchesUpdated;
         matchesStore.ListenMatches();
     }
 
     private void OnDisable()
     {
-        matchesStore.OnMatchesUpdated -= OnMatchesUpdated;
+        MatchesStore.OnMatchesUpdated -= OnMatchesUpdated;
         matchesStore.Unlisten(); 
     }
 

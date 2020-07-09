@@ -11,13 +11,15 @@ public class MatchesStore : FirestoreStore
 {
     private ListenerRegistration listener; 
     public delegate void OnMatchUpdateDelegate();
-    public event OnMatchUpdateDelegate OnMatchUpdate;  
+    public static event OnMatchUpdateDelegate OnMatchUpdate;  
     public delegate void OnMatchUpdateErrorDelegate();
-    public event OnMatchUpdateErrorDelegate OnMatchUpdateError;
+    public static event OnMatchUpdateErrorDelegate OnMatchUpdateError;
     public delegate void OnMatchUpdatedDelegate(Match match);
-    public event OnMatchUpdatedDelegate OnMatchUpdated;
+    public static event OnMatchUpdatedDelegate OnMatchUpdated;
     public delegate void OnMatchesUpdatedDelegate(List<Match> matches);
-    public event OnMatchesUpdatedDelegate OnMatchesUpdated; 
+    public static event OnMatchesUpdatedDelegate OnMatchesUpdated;
+    private bool isLoading = false;
+    public bool IsLoading {  get { return isLoading; } }
 
     public void ListenMatches()
     {
@@ -50,6 +52,9 @@ public class MatchesStore : FirestoreStore
 
     public Task UpdateMatch(Match match)
     {
+        if (!isLoading) 
+            isLoading = true; 
+
         OnMatchUpdate?.Invoke();
 
         DocumentReference docRef = Match.collectionRef.Document(match.id);
@@ -68,6 +73,8 @@ public class MatchesStore : FirestoreStore
         };
 
         return docRef.SetAsync(updatedMatch, SetOptions.MergeAll).ContinueWithOnMainThread(task => {
+            isLoading = false;
+
             if (task.IsFaulted || task.IsCanceled)
             {
                 Debug.Log(task.Exception.ToString());

@@ -6,7 +6,7 @@ using Firebase.Auth;
 
 public class PlayerMarkInsignia : MonoBehaviour
 {
-    public Image backgroundImage;
+    public Image turnIndicatorImage;
     public Image xImage;
     public Image oImage; 
     public Text text; 
@@ -26,7 +26,7 @@ public class PlayerMarkInsignia : MonoBehaviour
 
     private void Start()
     {
-        backgroundImage.color = defaultColor; 
+        turnIndicatorImage.color = defaultColor; 
     }
 
     public void Setup(Player player)
@@ -44,6 +44,6 @@ public class PlayerMarkInsignia : MonoBehaviour
     private void HandleGameChangeTurn(string userId)
     {
         if (player == null) return;
-        backgroundImage.color = userId == player.id ? turnColor : defaultColor; 
+        turnIndicatorImage.color = userId == player.id ? turnColor : defaultColor; 
     }
 }
