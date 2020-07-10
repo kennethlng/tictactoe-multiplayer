@@ -1,4 +1,4 @@
-# TicTacToe
+# tictactoe-multiplayer
 
 This is a cross-platform game prototype leveraging Unity and Firebase to create an online, multiplayer turn-based strategy game. 
 
