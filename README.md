@@ -2,7 +2,7 @@
 
 This is a cross-platform game prototype leveraging Unity and Firebase to create an online, multiplayer turn-based strategy game. 
 
-> This repository is only for the client-side game. Please see the repository [tictactoe-multiplayer-server](https://github.com/kennethlng/tictactoe-multiplayer-server) to see the Firebase Cloud Functions server that handles the backend game logic (determing whose turn it is, verifying win conditions to determine a winner). 
+> This repository is only for the client-side game. Please see the repository [tictactoe-multiplayer-cloud-functions](https://github.com/kennethlng/tictactoe-multiplayer-cloud functions) to see the Cloud Functions trigger functions that handle the backend game logic (determing whose turn it is, verifying win conditions to determine a winner). 
 
 ## Stack
 
@@ -207,8 +207,8 @@ A `queue` document has the following fields:
 Field | Type | Description 
 | --- | --- | --- |
 `userId` | `string` | Identifies the player who created the matchmaking request. 
-`isActive` | `bool` | Determines whether the matchmaking request is currently active. This is set by the [Cloud Functions backend](https://github.com/kennethlng/tictactoe-multiplayer-server). 
-`createdOn` | `timestamp` | The timestamp for when the queue was created. This is set by the [Cloud Functions backend](https://github.com/kennethlng/tictactoe-multiplayer-server). 
+`isActive` | `bool` | Determines whether the matchmaking request is currently active. This is set by the [Cloud Functions backend](https://github.com/kennethlng/tictactoe-multiplayer-cloud-functions). 
+`createdOn` | `timestamp` | The timestamp for when the queue was created. This is set by the [Cloud Functions backend](https://github.com/kennethlng/tictactoe-multiplayer-cloud-functions). 
 
 ### `matches`
 
@@ -244,7 +244,7 @@ A `match` document has the following fields:
 Field | Type | Description
 --- | --- | --- 
 `isActive` | `bool` | Determines whether the match is currently active. A match is active when it is first created. The match is set inactive when the game ends. 
-`turn` | `string` | The user ID of the player whose turn it is. This field helps the clients determine whose turn it is and whether or not to disable input from the player. The [Cloud Functions backend](https://github.com/kennethlng/tictactoe-multiplayer-server) determines whose turn it is. 
+`turn` | `string` | The user ID of the player whose turn it is. This field helps the clients determine whose turn it is and whether or not to disable input from the player. The [Cloud Functions backend](https://github.com/kennethlng/tictactoe-multiplayer-cloud-functions) determines whose turn it is. 
 `playerO` | `string` | The user ID of the player whose mark is "O".
 `playerX` | `string` | The user ID of the player whose mark is "X".
 `winner` | `string` | The user ID of the winning player, if there is a winner. If there is no winner, this field is left blank. 
