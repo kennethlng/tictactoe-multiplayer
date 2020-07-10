@@ -243,7 +243,7 @@ A `match` document has the following fields:
 
 Field | Type | Description
 --- | --- | --- 
-`isActive` | `bool` | Determines whether the match is currently active. A match is still active when the 2 players are playing. A match is set inactive when the game ends. 
+`isActive` | `bool` | Determines whether the match is currently active. A match is active when it is first created. The match is set inactive when the game ends. 
 `turn` | `string` | The user ID of the player whose turn it is. This field helps the clients determine whose turn it is and whether or not to disable input from the player. The Cloud Functions backend determines whose turn it is. 
 `playerO` | `string` | The user ID of the player whose mark is "O".
 `playerX` | `string` | The user ID of the player whose mark is "X".
