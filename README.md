@@ -34,7 +34,7 @@ For simplicity's sake, I used Firebase Authentication's anonymous sign-in.
 
 ### Matchmaking
 
-When the `LobbyScene` opens, the `LobbyManager` starts listening for available matches for the player to play. 
+When the [`LobbyScene`](#lobbyscene) opens, the `LobbyManager` starts listening for available [matches](#matches) for the player to play. 
 
 ```c#
 //  MatchesStore.cs
@@ -61,9 +61,9 @@ public void ListenMatches()
 }
 ```
 
-If a match is available it will be populated on the screen, and the player can click on it to initiate the game. The match ID is saved to a `ScriptableObject` so that it can be accessed by the `GameManager` in the `GameScene`. 
+If a match is available it will be populated on the screen, and the player can click on it to initiate the game. The match ID is saved to a `ScriptableObject` so that it can be accessed by the `GameManager` in the [`GameScene`](#gamescene). When a match in the list of available matches is selected by the player, the `StateManager` in the [`PersistentScene`](#persistentscene), which is listening for the [`OnMatchSelected`](#onmatchselected) event, tells the `SceneController` to begin loading the [`GameScene`](#gamescene).
 
-If there are no matches available, the player can submit a matchmaking request (create a `queue`). 
+If there are no matches available, the player can submit a matchmaking request (create a [`queue`](#queues)). 
 
 ```c#
 //  QueuesStore.cs
@@ -92,7 +92,19 @@ public Task CreateQueue()
 
 ### Gameplay
 
-When the `GameScene` opens, the `GameManager` starts listening for the match with the match ID provided by the lobby. Each time the `match` document in the Firestore database collection is updated, the match object on the client side is also updated to reflect the latest updates. 
+A [`match`](#matches) document carries all the information for a given game, including whose turn it is and which mark ("O" or "X") has been placed on each of the 9 grid spaces. Since TicTacToe is a turn-based game, each player is essentially taking turns updating the match document. Each player's game client listens for updates to the match and therefore sees the changes happen in real-time. 
+
+When the [`GameScene`](#gamescene) opens, the `GameManager` starts listening for the match with the match ID provided by the lobby. 
+
+```c#
+//  GameManager.cs
+
+private void OnEnable()
+{
+    matchesStore.ListenMatch(matchId.Value);
+    MatchesStore.OnMatchUpdated += HandleMatchUpdated;
+}
+```
 
 ```c#
 //  MatchesStore.cs
@@ -110,13 +122,16 @@ public void ListenMatch(string matchId)
 }
 ```
 
-Each time the match is updated, the `GameManager` broadcasts events for the grid space marks and for whose turn it is. 
+Each time the match is updated, the `GameManager` broadcasts events for the grid space marks ([`OnMarksUpdated`](#onmarksupdated)) and for whose turn it is ([`OnTurnChanged`](#onturnchanged)). 
 
 ```c#
-private void OnMatchUpdated(Match match)
+//  GameManager.cs
+
+private void HandleMatchUpdated(Match match)
 {
     if (match == null) return;
 
+    //  Save the match 
     this.match = match;
 
     //  If the game is no longer active, don't run any events or game logic
@@ -135,28 +150,48 @@ private void OnMatchUpdated(Match match)
 }
 ```
 
-### Events
+A game is over when the `isActive` field of the [match](#matches) is `false`. When the game is over, a game over UI pops up, and the player can press **Play again** to return to the lobby to find another match. 
 
-#### `OnMarksUpdated` 
+## Events
 
-Passes a List<string> of marks corresponding to the 9 grid spaces. The mark buttons on the 9 grid spaces listen for this event and change their mark to "O" or "X" accordingly when the marks are updated. 
+### `OnSignedIn`
+
+Called by the `AuthenticationManager` when the user successfully signs in. 
+
+### `OnSignedOut` 
+
+Called by the `AuthenticationManager` when the user signs out. 
+
+### `OnMatchSelected`
+
+Called by the `LobbyManager` when the player picks a match to play.
+
+### `OnMarksUpdated` 
+
+Called by the `GameManager` when the marks are updated. Passes a List<string> of marks corresponding to the 9 grid spaces. 
     
-#### `OnTurnChanged`
+The mark buttons on the 9 grid spaces listen for this event and change their mark to "O" or "X" accordingly when the marks are updated. 
+    
+### `OnTurnChanged`
 
-Passes the user ID of the player whose turn it is to place a mark on the grid. The mark buttons on the 9 grid spaces listen for this event and disable themselves when it's not the signed-in user's turn. The `PlayerIndicatorPanel` on the UI also listens for this event to tell the player whose turn it is. 
+Called by the `GameManager` when it's the next player's turn. Passes the user ID of the player whose turn it is to place a mark on the grid. 
 
-### Database
+The mark buttons on the 9 grid spaces listen for this event and disable themselves when it's not the signed-in user's turn. The `PlayerIndicatorPanel` on the UI also listens for this event to show whose turn it is. 
+
+## Database
 
 The Firestore database has 2 collections: `queues` and `matches`. 
 
-#### `queue`
+### `queues`
 
 A `queue` document has the following fields:
 
 ```json
-"userId": "0cj3jkdflj2ldkfjd"
-"isActive": true
-"createdOn": "July 6, 2020 at 12:14:45 PM UTC-7"
+{
+    "userId": "0cj3jkdflj2ldkfjd",
+    "isActive": true,
+    "createdOn": "July 6, 2020 at 12:14:45 PM UTC-7"
+}
 ```
 
 Field | Type | Description 
@@ -165,9 +200,9 @@ Field | Type | Description
 `isActive` | `bool` | Determine whether the matchmaking request is currently active. This is set by the Cloud Functions backend. 
 `createdOn` | `timestamp` | This is set by the Cloud Functions backend. 
 
-#### `match`
+### `matches`
 
-A `match` document: 
+A `match` document has the following fields: 
 
 ```json
 {
@@ -205,6 +240,26 @@ Field | Type | Description
 `winner` | `string` | The user ID of the winning player, if there is a winner. If there is no winner, this field is left blank. 
 `players` | `object` | This field is used on the client side for querying matches that the signed-in user is a member of. 
 `marks` | `object` | An object mapping representing the 9 grid spaces in a TicTacToe game. This field is updated each time a player places a new mark on the grid. 
+
+## Scenes
+
+### `PersistentScene`
+
+Loads the individual scenes in and out according to the state of the game. 
+
+> I highly recommend checking out Unity's [Adventure - Sample Game](https://assetstore.unity.com/packages/essentials/tutorial-projects/adventure-sample-game-76216) project for an example implementation of this. 
+
+### `AuthenticationScene`
+
+Handles the logic for signing in the player anonymously. 
+
+### `LobbyScene`
+
+Handles the logic for [matchmaking](#matchmaking). 
+
+### `GameScene`
+
+Handles the [gameplay](#gameplay) logic. 
 
 ## Contact
 
