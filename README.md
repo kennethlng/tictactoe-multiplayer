@@ -207,8 +207,8 @@ A `queue` document has the following fields:
 Field | Type | Description 
 | --- | --- | --- |
 `userId` | `string` | Identifies the player who created the matchmaking request. 
-`isActive` | `bool` | Determines whether the matchmaking request is currently active. This is set by the Cloud Functions backend. 
-`createdOn` | `timestamp` | The timestamp for when the queue was created. This is set by the Cloud Functions backend. 
+`isActive` | `bool` | Determines whether the matchmaking request is currently active. This is set by the [Cloud Functions backend](https://github.com/kennethlng/tictactoe-multiplayer-server). 
+`createdOn` | `timestamp` | The timestamp for when the queue was created. This is set by the [Cloud Functions backend](https://github.com/kennethlng/tictactoe-multiplayer-server). 
 
 ### `matches`
 
@@ -244,7 +244,7 @@ A `match` document has the following fields:
 Field | Type | Description
 --- | --- | --- 
 `isActive` | `bool` | Determines whether the match is currently active. A match is active when it is first created. The match is set inactive when the game ends. 
-`turn` | `string` | The user ID of the player whose turn it is. This field helps the clients determine whose turn it is and whether or not to disable input from the player. The Cloud Functions backend determines whose turn it is. 
+`turn` | `string` | The user ID of the player whose turn it is. This field helps the clients determine whose turn it is and whether or not to disable input from the player. The [Cloud Functions backend](https://github.com/kennethlng/tictactoe-multiplayer-server) determines whose turn it is. 
 `playerO` | `string` | The user ID of the player whose mark is "O".
 `playerX` | `string` | The user ID of the player whose mark is "X".
 `winner` | `string` | The user ID of the winning player, if there is a winner. If there is no winner, this field is left blank. 
