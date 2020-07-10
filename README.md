@@ -2,7 +2,7 @@
 
 This is a cross-platform game prototype leveraging Unity and Firebase to create an online, multiplayer turn-based strategy game. 
 
-> This repository is only for the client-side game. Please see the repository [tictactoe-multiplayer-server](https://github.com/kennethlng/tictactoe-multiplayer-server) to see the Firebase Cloud Functions server that handles the backend game logic (determing whose turn it is, verifying win conditions). 
+> This repository is only for the client-side game. Please see the repository [tictactoe-multiplayer-server](https://github.com/kennethlng/tictactoe-multiplayer-server) to see the Firebase Cloud Functions server that handles the backend game logic (determing whose turn it is, verifying win conditions to determine a winner). 
 
 ## Stack
 
