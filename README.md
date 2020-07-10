@@ -16,7 +16,7 @@ I used Unity for the client-side game, Firebase Firestore for the database, and 
 4. Connect your iPhone. 
 5. Select your phone in the list of available devices and build the game. 
 
-> While building the game in Xcode you may experience some build errors for missing dependencies. Remember to update the cocoapods by opening Terminal, locating the project folder for the Xcode project, and doing `pod update`. 
+> While building the game in Xcode you may experience some build errors for missing dependencies. Remember to update the cocoapods by opening Terminal, locating the project folder for the Xcode project, and performing a `pod update`. 
 
 ## How to Play
 
