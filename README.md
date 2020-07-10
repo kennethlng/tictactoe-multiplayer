@@ -37,6 +37,16 @@ For simplicity's sake, I used Firebase Authentication's anonymous sign-in.
 When the [`LobbyScene`](#lobbyscene) opens, the `LobbyManager` starts listening for available [matches](#matches) for the player to play. 
 
 ```c#
+//  LobbyManager.cs
+
+private void OnEnable()
+{
+    MatchesStore.OnMatchesUpdated += HandleMatchesUpdated;
+    matchesStore.ListenMatches();
+}
+```
+
+```c#
 //  MatchesStore.cs
 
 public void ListenMatches()
