@@ -57,16 +57,16 @@ public class GameManager : MonoBehaviour
     private void OnEnable()
     {
         matchesStore.ListenMatch(matchId.Value);
-        MatchesStore.OnMatchUpdated += MatchesStore_OnMatchUpdated;
+        MatchesStore.OnMatchUpdated += HandleMatchUpdated;
     }
 
     private void OnDisable()
     {
         matchesStore.Unlisten(); 
-        MatchesStore.OnMatchUpdated -= MatchesStore_OnMatchUpdated;
+        MatchesStore.OnMatchUpdated -= HandleMatchUpdated;
     }
 
-    private void MatchesStore_OnMatchUpdated(Match match)
+    private void HandleMatchUpdated(Match match)
     {
         if (match == null) return;
 

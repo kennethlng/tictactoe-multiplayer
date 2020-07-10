@@ -24,13 +24,13 @@ public class LobbyManager : MonoBehaviour
 
     private void OnEnable()
     {
-        MatchesStore.OnMatchesUpdated += OnMatchesUpdated;
+        MatchesStore.OnMatchesUpdated += HandleMatchesUpdated;
         matchesStore.ListenMatches();
     }
 
     private void OnDisable()
     {
-        MatchesStore.OnMatchesUpdated -= OnMatchesUpdated;
+        MatchesStore.OnMatchesUpdated -= HandleMatchesUpdated;
         matchesStore.Unlisten(); 
     }
 
@@ -50,7 +50,7 @@ public class LobbyManager : MonoBehaviour
         queuesStore.CreateQueue();
     }
 
-    private void OnMatchesUpdated(List<Match> matches)
+    private void HandleMatchesUpdated(List<Match> matches)
     {
         //  First remove the current list items
         foreach(Transform child in listContent.transform)
