@@ -207,8 +207,8 @@ A `queue` document has the following fields:
 Field | Type | Description 
 | --- | --- | --- |
 `userId` | `string` | Identifies the player who created the matchmaking request. 
-`isActive` | `bool` | Determine whether the matchmaking request is currently active. This is set by the Cloud Functions backend. 
-`createdOn` | `timestamp` | This is set by the Cloud Functions backend. 
+`isActive` | `bool` | Determines whether the matchmaking request is currently active. This is set by the Cloud Functions backend. 
+`createdOn` | `timestamp` | The timestamp for when the queue was created. This is set by the Cloud Functions backend. 
 
 ### `matches`
 
